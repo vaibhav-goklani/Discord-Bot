@@ -1,9 +1,11 @@
 const { Client, GatewayIntentBits } =  require('discord.js');
 const express = require('express');
-const connectToMongoDB = require('./connect');
 const dotenv = require('dotenv').config();
+
+const connectToMongoDB = require('./connect');
 const { handleGenerateNewShortURL, handleDelete } = require('./controllers/url');
 const staticRoute = require('./routes/staticRouter');
+const { generate } = require('./controllers/gemini');
 
 // Connections
 connectToMongoDB(process.env.MONGODB_URI)
@@ -33,8 +35,9 @@ client.on("messageCreate", async (message) => {
         })
     }
     else {
+        const res = await generate(message);
         message.reply({
-            content: `Hello ${message.author.username}!`,
+            content: res.message,
         });
     }
 });
